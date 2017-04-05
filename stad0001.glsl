@@ -4,7 +4,7 @@ float pointCircle(vec2 p, vec2 center, float radius)
 {
     float d = distance(p, center);
     float aaf = fwidth(d);
-  	return 1.0 - smoothstep(radius - aaf, radius, d);
+    return 1.0 - smoothstep(radius - aaf, radius, d);
 }
 
 float dotPattern(vec2 p)
@@ -42,12 +42,12 @@ float dotPattern(vec2 p)
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-	  vec2 uv = fragCoord.xy / iResolution.xy;
+    vec2 uv = fragCoord.xy / iResolution.xy;
     uv *= 2.0;
     uv -= vec2(1.0);
     uv.x *= iResolution.x / iResolution.y;
     
-  	float d = dotPattern(uv);
+    float d = dotPattern(uv);
     float shadow_offset = 0.01;
     float ds = dotPattern(uv + vec2(-shadow_offset, shadow_offset));                          
          
@@ -58,7 +58,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 c = mix(bkg, shadow, ds);
     c = mix(c, dots, d);
     
-  	fragColor = vec4(c, 1.0);
+    fragColor = vec4(c, 1.0);
 }
 
 // version history:
