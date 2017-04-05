@@ -58,7 +58,7 @@ vec4 circlePattern(vec2 p)
         float middleAngle = atan(diff.y,diff.x);
         
         float ratio = smoothstep(0.0,1.0,mod(iGlobalTime*0.5+i*0.25,3.0));
-        middleAngle += ratio * PI;
+        middleAngle -= ratio * PI;
             
         vec2 realPos0 = middlePos + vec2(cos(middleAngle), sin(middleAngle)) * middleRadius;
         vec2 realPos1 = middlePos + vec2(cos(PI + middleAngle), sin(PI + middleAngle)) * middleRadius;
