@@ -66,11 +66,13 @@ vec4 circlePattern(vec2 p)
         vec3 color0 = hueToRGB(mod(0.25 + 1.0/24.0 - (i+1.5) / NUMBER_OF_CIRCLES, 1.0));
         vec3 color1 = hueToRGB(mod(0.25 + 1.0/24.0 - (i-0.0) / NUMBER_OF_CIRCLES, 1.0));
         
+        float bandRatio = 1.0 - abs(2.0 * ratio - 1.0);
+        
         vec3 realColor0 = mix(color0, color1, ratio);
         vec3 realColor1 = mix(color1, color0, ratio);
                
         float st = pointCircleStroke(p, middlePos, middleRadius);
-		ret = alphaBlend(vec4(color0, st), ret);
+		ret = alphaBlend(vec4(color0, st * bandRatio), ret);
         
         float c0 = pointCircle(p, realPos0, radius);
         ret = alphaBlend(vec4(realColor0, c0), ret);
