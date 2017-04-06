@@ -5,7 +5,7 @@ const float RADIUS = 0.6;
 const float WIDTH = 0.03;
 const float PI = 3.14159265359;
 const float WIGGLE_REPEAT = 8.0;
-const float WIGGLE_STRENGTH = 0.12;
+const float WIGGLE_STRENGTH = 0.08;
 const float WIGGLE_OFFSET = PI*0.5;
 
 const vec3 COLOR_R = vec3(191.0,49.0,107.0)/255.0;
@@ -26,8 +26,9 @@ vec3 pattern(vec2 p)
     float a = atan(p.y, p.x);
     
     vec3 offsets = vec3(0.0, 1.0, 2.0) * WIGGLE_OFFSET;
-    vec3 angles = offsets + vec3(a * WIGGLE_REPEAT);
-    float factor = sin(a + iGlobalTime *1.0* 2.0) * 0.5 + 0.5;
+    vec3 angles = offsets + vec3(a * WIGGLE_REPEAT);   
+    float factor = sin(a + iGlobalTime * 1.5) * 0.5 + 0.5;
+    factor = pow(factor, 1.1);
     vec3 mods = sin(angles) * factor * WIGGLE_STRENGTH + vec3(1.0);
     vec3 radii = mods * vec3(RADIUS);
     
@@ -40,9 +41,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     uv *= 2.0;
     uv -= vec2(1.0);
     uv.x *= iResolution.x / iResolution.y;
-    
-    //uv*=0.5;
-    //uv.y+=0.5;
     
     vec3 c = pattern(uv);
     vec3 ret = 
