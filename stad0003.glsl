@@ -4,13 +4,13 @@
 const float RADIUS = 0.6;
 const float WIDTH = 0.03;
 const float PI = 3.14159265359;
-const float WIGGLE_REPEAT = 8.0;
-const float WIGGLE_STRENGTH = 0.08;
-const float WIGGLE_OFFSET = PI*0.5;
+const float WIGGLE_REPEAT = 6.0;
+const float WIGGLE_STRENGTH = 0.1;
+const float WIGGLE_OFFSET = PI*0.7;
 
 const vec3 COLOR_R = vec3(191.0,49.0,107.0)/255.0;
-const vec3 COLOR_G = vec3(67.0,177.0,50.0)/255.0;
-const vec3 COLOR_B = vec3(81.0,99.0,145.0)/255.0;
+const vec3 COLOR_B = vec3(67.0,177.0,50.0)/255.0;
+const vec3 COLOR_G = vec3(81.0,99.0,145.0)/255.0;
 
 vec3 shape(float d, vec3 radii)
 {
@@ -23,7 +23,7 @@ vec3 shape(float d, vec3 radii)
 vec3 pattern(vec2 p)
 {
     float d = length(p);
-    float a = atan(p.y, p.x);
+    float a = atan(p.y, p.x) - iGlobalTime * 0.4;
     
     vec3 offsets = vec3(0.0, 1.0, 2.0) * WIGGLE_OFFSET;
     vec3 angles = offsets + vec3(a * WIGGLE_REPEAT);   
@@ -49,3 +49,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         COLOR_B * c.z;
     fragColor = vec4(ret, 1.0);
 }
+
+// version history
+// 1.0 - original version [tpen]
+// 1.1 - finetuning [void room]
