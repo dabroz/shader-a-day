@@ -4,6 +4,7 @@
 const float NUMBER_OF_CIRCLES = 12.0;
 const float PI = 3.14159265359;
 const float MOTION_BLUR = 5.0;
+const float MAX_T = 2.0 * PI;
 
 float circle(vec2 p, vec2 center, float exRadius, float inRadius)
 {
@@ -14,7 +15,7 @@ float circle(vec2 p, vec2 center, float exRadius, float inRadius)
         -smoothstep(exRadius - aaf, exRadius, d);
 }
 
-float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t)
+float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t, float minBorder)
 {
     vec2 diff = p - center;
     float angle = atan(diff.y, diff.x);
@@ -22,7 +23,7 @@ float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t)
     float ret = 0.0;
 
     float recExRadius = (exRadius-inRadius)*0.5;
-    float recInRadius = 0.0;//recExRadius * inRadius / exRadius;
+    float recInRadius = min(recExRadius-minBorder, recExRadius * inRadius / exRadius);
     float xradius = inRadius + recExRadius;
     
     for (float i = 0.0; i < NUMBER_OF_CIRCLES; i++)
@@ -37,20 +38,27 @@ float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t)
     return ret;
 }
 
-float pattern(vec2 p, float t)
-{
-	float d = circleEx(p, vec2(1.0, 0.25), 0.5, 0.375, t);
-    return d;
-}
-
-float patternMB(vec2 p, float t)
+float circleExMB(vec2 p, vec2 center, float exRadius, float inRadius, float t, float minBorder)
 {
    	float ret = 0.0;
     for (float i = -MOTION_BLUR; i <= MOTION_BLUR; i += 1.0)
     {
-        ret += pattern(p, t + (i / MOTION_BLUR) * 0.05);
+        float t2 = t + (i / MOTION_BLUR) * 0.05;
+        ret += circleEx(p, center, exRadius, inRadius, t2, minBorder);
     }
     return ret / (MOTION_BLUR * 2.0 + 1.0);
+}
+
+float pattern(vec2 p, float t)
+{    
+    float factor = (1.0 - (t / MAX_T));
+    float radius = 5.0 * factor;
+    float width = 2.0/3.0 * factor;
+    float minBorder = 0.1;
+    radius = max(radius, width);
+    float tx = pow(t, 2.0);
+	float d = circleExMB(p, vec2(0.0, 1.0/3.0 - radius), radius, radius - width, tx, minBorder);
+    return d;
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -58,11 +66,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	vec2 uv = 2.0 * fragCoord.xy / iResolution.xy - vec2(1.0);
     uv.x *= iResolution.x / iResolution.y;
     
+    float time = mod(iGlobalTime * 0.5, MAX_T);
+    //time = 0.0;
+    
     float t = iGlobalTime;
-#if 1
-    float d = patternMB(uv, t);
-#else
-    float d = circle(uv, vec2(1.0, 0.25), 0.5, 0.375);
-#endif
+//#if 1
+    float d = pattern(uv, time); //MB
+//#else
+//    float d = circle(uv, vec2(1.0, 0.25), 0.5, 0.375);
+//#endif
     fragColor = vec4(vec3(1.0 - d), 1.0);
 }
