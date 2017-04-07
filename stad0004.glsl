@@ -17,8 +17,8 @@ float circle(vec2 p, vec2 center, float exRadius, float inRadius)
 
 float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t, float speed, float minBorder)
 {
-    float regCircle = circle(p, center, exRadius, inRadius);
-    
+    float regCircle = circle(p, center, exRadius, max(exRadius-minBorder,inRadius));
+
     vec2 diff = p - center;
     float angle = atan(diff.y, diff.x);
     
@@ -38,7 +38,7 @@ float circleEx(vec2 p, vec2 center, float exRadius, float inRadius, float t, flo
         ret = max(ret, c);
     }
     
-    return mix(ret,regCircle,smoothstep(3.0,4.0,speed));
+    return mix(ret,regCircle,pow(smoothstep(3.0,4.0,speed),2.0));
 }
 
 float circleExMB(vec2 p, vec2 center, float exRadius, float inRadius, float t, float speed, float minBorder)
@@ -54,14 +54,14 @@ float circleExMB(vec2 p, vec2 center, float exRadius, float inRadius, float t, f
 
 float pattern(vec2 p, float t)
 {    
-    float factor = (1.0 - (t / MAX_T));
-    float radius = 0.0 + 5.0 * factor;
+    float factor = smoothstep(0.0, 1.0, (1.0 - (t / MAX_T)));
+    float radius = 5.0 * factor;
     float width = 2.0/3.0 * factor;
-    float minBorder = 0.1;
+    float minBorder = 0.05;
     radius = max(radius, width);
-    //radius = width;
     radius = max(radius,1.0/3.0);
-    float tx = t;// pow(t, 2.0);
+    width = max(width, minBorder);
+    float tx = t;
     float speed = t;
 	float d = circleExMB(p, vec2(0.0, 1.0/3.0 - radius), radius, radius - width, tx, speed, minBorder);
     return d;
@@ -73,7 +73,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     uv.x *= iResolution.x / iResolution.y;
     
     float time = mod(iGlobalTime * 0.5, MAX_T);
-    //time = 0.0;
     
     float d = pattern(uv, time);
     
