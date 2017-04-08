@@ -1,6 +1,8 @@
 // https://www.shadertoy.com/view/ld2yWR
 // based on http://i.imgur.com/0fDavWZ.mp4 [Clayton Shonkwiler]
 
+// hard lines are not preserved (yet)
+
 const vec3 COLOR_BKG = vec3(ivec3( 69,  81, 105)) / 255.0;
 const vec3 COLOR_0   = vec3(ivec3(186, 113, 182)) / 255.0;
 const vec3 COLOR_1   = vec3(ivec3( 54, 194, 245)) / 255.0;
@@ -26,14 +28,20 @@ vec2 aastep(float threshold, vec2 value)
     return smoothstep(threshold-aaf, threshold+aaf, value);
 }
 
-vec2 warp(vec2 p, float t) 
-{    
-	float dist = max(abs(p.x), abs(p.y));
-    float quant = round(dist * 10.0) / 10.0;
+float warpFactor(vec2 p, float t)
+{
+    float dist = length(p);
+    //dist = max(abs(p.x), abs(p.y));
+    //float quant = round(dist * 10.0 - 0.5) / 10.0;
     
-    float factor = (t*3.0-1.0) ;//+ quant;
+    float factor = (t*3.0-1.0) - dist*0.5;
     factor = smoothstep(0.0, 1.0, factor);
     
+    return factor;
+}
+
+vec2 warp(vec2 p, float factor) 
+{       
     float a = -factor * 0.5 * PI;
     mat2 matrix = mat2(cos(a), sin(a), -sin(a), cos(a));
     vec2 r = matrix * p;
@@ -48,7 +56,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float t = mod(iGlobalTime, MAX_T) / MAX_T;
     
     vec2 baseuv = uv;
-    uv = warp(uv, t);
+    float factor = warpFactor(uv, t);
+    uv = warp(uv, factor);
     
     vec2 pos = mod(uv,PATTERN_SIZE);
     vec2 rpos = vec2(PATTERN_SIZE)-pos;
@@ -61,8 +70,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     c *= aastep(CIRCLE_SIZE, length(upos));
      
     float ratio = length(baseuv);
-    vec3 color = mix(COLOR_0, COLOR_1, ratio);
-   	vec3 bkg = baseuv.x>1.6 ? vec3(step(t,baseuv.y*0.5+0.5)) : COLOR_BKG;
+    vec3 color = mix(COLOR_1, COLOR_0, abs(factor*2.0-1.0));
+   	vec3 bkg = COLOR_BKG;
+        // baseuv.x>1.6 ? vec3(step(t,baseuv.y*0.5+0.5)) : COLOR_BKG;
     vec3 cc = mix(color, bkg, c);
     
 	fragColor = vec4(cc, 1.0);
