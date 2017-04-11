@@ -39,7 +39,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         {
             float rrr = 1.0-abs(2.0*(rr - BAR_MARGIN)/BAR_WIDTH-1.0);
             float speed = (11.0 - qq0*10.0) * SPEED_RATIO;
-            float aa = mod(a - iGlobalTime * speed, 1.0);
+            float aa = mod(a - iGlobalTime * speed - iGlobalTime * 0.05, 1.0); 
             if (aa > 0.5)
             {
         		c = aastep(1.0-aa,rrr*0.5);
@@ -49,3 +49,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
 	fragColor = vec4(mix(COLOR_BG, COLOR_FG, c), 1.0);
 }
+
+// version history
+// 1.0 - original version [tpen]
+// 1.1 - timing fix [void room]
