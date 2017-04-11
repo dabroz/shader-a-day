@@ -5,16 +5,19 @@ const vec3 COLOR_FG = vec3(ivec3(77, 255, 74)) / 255.0;
 const vec3 COLOR_BG = vec3(0.0);
 
 const float NUMBER_OF_CIRCLES = 9.0;
-const float SPEED_RATIO = 0.5; //8.0;
+const float SPEED_RATIO = 0.2;
 
-const float BAR_WIDTH = 1.0 / 2.0;
+const float BAR_WIDTH = 1.0 / 3.0;
 const float BAR_MARGIN = (1.0 - BAR_WIDTH) * 0.5;
 const float MARGIN = 30.0 / 270.0;
 
 const float PI = 3.14159265359;
 
-//const float SPACER_WIDTH = (1.0 - BAR_WIDTH * NUMBER_OF_CIRCLES - MARGIN * 2.0)
-//    / (NUMBER_OF_CIRCLES - 1.0);
+float aastep(float threshold, float value)
+{
+    float aaf = fwidth(value) * 0.5;
+    return smoothstep(threshold-aaf, threshold+aaf, value);
+}
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
@@ -30,13 +33,17 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     {
         float dd = (d - MARGIN) / (1.0 - MARGIN * 2.0);
         float qq = floor(dd * NUMBER_OF_CIRCLES) / NUMBER_OF_CIRCLES;
+        float qq0 = floor(dd * NUMBER_OF_CIRCLES) / (NUMBER_OF_CIRCLES-1.0);        
         float rr = fract(dd * NUMBER_OF_CIRCLES);
         if (rr > BAR_MARGIN && rr < (1.0-BAR_MARGIN))
         {
             float rrr = 1.0-abs(2.0*(rr - BAR_MARGIN)/BAR_WIDTH-1.0);
-            float speed = (1.0-qq) * SPEED_RATIO;
+            float speed = (11.0 - qq0*10.0) * SPEED_RATIO;
             float aa = mod(a - iGlobalTime * speed, 1.0);
-        	c = rrr*aa;
+            if (aa > 0.5)
+            {
+        		c = aastep(1.0-aa,rrr*0.5);
+            }
         }
     }
     
